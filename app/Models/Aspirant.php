@@ -19,6 +19,11 @@ class Aspirant extends Model
         return $this->belonsTo(Constituency::class);
     }
 
+    public function followers()
+    {
+        return $this->belongsToMany(User::class);
+    }
+
     public function party()
     {
         return $this->belongsTo(Party::class);

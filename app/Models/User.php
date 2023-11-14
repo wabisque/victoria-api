@@ -26,6 +26,11 @@ class User extends Authenticatable
         return $this->belongsTo(User::class, 'boss_id');
     }
 
+    public function followedAspirants()
+    {
+        return $this->belongsToMany(Aspirant::class);
+    }
+
     public function role()
     {
         return $this->belongsTo(Role::class);

@@ -14,6 +14,10 @@ class PostController extends Controller
     public function create(Request $request)
     {
         $fields = $request->validate([
+            'title' => [
+                'required',
+                'string'
+            ],
             'body' => [
                 'required',
                 'string'
@@ -50,12 +54,16 @@ class PostController extends Controller
 
     public function index(Request $request)
     {
-        $posts = null;
-
         if($request->user()->role()->where('name', 'Aspirant')->exists())
         {
-            $posts = PostResource::collection($request->user()->aspirant->posts()->with('aspirant')->get());
+            $posts = $request->user()->aspirant->posts()->with('aspirant')->get();
         }
+        else
+        {
+            $posts = Post::whereIn('aspirant_id', $request->user()->followedAspirants->each(fn($model) => $model->id))->get();
+        }
+
+        $posts = PostResource::collection($posts);
 
         return response()->json(compact($posts));
     }
@@ -63,6 +71,11 @@ class PostController extends Controller
     public function get(Request $request, Post $post)
     {
         if($request->user()->role()->where('name', 'Aspirant')->exists() && $post->aspirant_id != $request->user()->aspirant->id)
+        {
+            throw new NotFoundResourceException();
+        }
+        
+        if($request->user()->role()->where('name', 'Follower')->exists() && $request->user()->followedAspirants()->where('id', $post->aspirant_id)->doesntExist())
         {
             throw new NotFoundResourceException();
         }
@@ -77,6 +90,10 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         $fields = $request->validate([
+            'title' => [
+                'required',
+                'string'
+            ],
             'body' => [
                 'required',
                 'string'

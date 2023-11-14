@@ -12,6 +12,7 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 use Throwable;
 
 class AspirantController extends Controller
@@ -88,14 +89,30 @@ class AspirantController extends Controller
 
     public function index(Request $request)
     {
-        $aspirants = AspirantResource::collection(Aspirant::with([
-            'constituency' => [
-                'region'
-            ],
-            'party',
-            'position',
-            'user'
-        ])->get());
+        if($request->user()->role()->where('name', 'Administrator')->exists())
+        {
+            $aspirants = Aspirant::with([
+                'constituency' => [
+                    'region'
+                ],
+                'party',
+                'position',
+                'user'
+            ])->get();
+        }
+        else
+        {
+            $aspirants = $request->user()->followedAspirants()->with([
+                'constituency' => [
+                    'region'
+                ],
+                'party',
+                'position',
+                'user'
+            ])->get();
+        }
+
+        $aspirants = AspirantResource::collection($aspirants);
 
         return response()->json(compact($aspirants));
     }
@@ -130,6 +147,11 @@ class AspirantController extends Controller
 
     public function get(Request $request, Aspirant $aspirant)
     {
+        if($request->user()->role()->where('name', 'Administrator')->doesntExist() && $request->user()->followedAspirants()->where('id', $aspirant->id)->doesntExist())
+        {
+            throw new NotFoundResourceException();
+        }
+
         $aspirant->load([
             'constituency' => [
                 'region'
@@ -431,6 +453,66 @@ class AspirantController extends Controller
             DB::commit();
 
             return response()->json(compact($aspirant, $aspirant_update_request));
+        }
+        catch(Throwable $th)
+        {
+            DB::rollBack();
+
+            throw $th;
+        }
+    }
+
+    public function follow(Request $request, Aspirant $aspirant)
+    {
+        try
+        {
+            DB::beginTransaction();
+
+            $request->user->followedAspirants()->attach($aspirant->id);
+            $aspirant->load([
+                'constituency' => [
+                    'region'
+                ],
+                'party',
+                'position',
+                'user'
+            ]);
+
+            $aspirant = new AspirantResource($aspirant);
+
+            DB::commit();
+
+            return response()->json(compact($aspirant));
+        }
+        catch(Throwable $th)
+        {
+            DB::rollBack();
+
+            throw $th;
+        }
+    }
+
+    public function unfollow(Request $request, Aspirant $aspirant)
+    {
+        try
+        {
+            DB::beginTransaction();
+
+            $request->user->followedAspirants()->detach($aspirant->id);
+            $aspirant->load([
+                'constituency' => [
+                    'region'
+                ],
+                'party',
+                'position',
+                'user'
+            ]);
+
+            $aspirant = new AspirantResource($aspirant);
+
+            DB::commit();
+
+            return response()->json(compact($aspirant));
         }
         catch(Throwable $th)
         {

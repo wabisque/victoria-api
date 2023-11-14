@@ -125,6 +125,13 @@ Route::controller(AspirantController::class)->prefix('aspirants')->name('aspiran
             }
         );
 
+        Route::middleware('role:Aspirant,Follower')->group(
+            function() {
+                Route::post('{aspirant}/follow', 'follow')->name('follow');
+                Route::post('{aspirant}/unfollow', 'unfollow')->name('unfollow');
+            }
+        );
+
         Route::put('{aspirant}', 'update')->middleware('role:Aspirant')->name('update');
         
         Route::post('', 'create')->middleware('role:Follower')->name('create');
