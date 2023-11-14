@@ -71,9 +71,7 @@ class AuthenticationController extends Controller
             'phone_number' => [
                 'required',
                 'string',
-                'numeric',
-                'min:10',
-                'max:10',
+                'digits:10',
                 'unique:users'
             ],
             'password' => [
