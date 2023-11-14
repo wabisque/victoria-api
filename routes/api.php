@@ -29,14 +29,16 @@ Route::controller(AuthenticationController::class)->prefix('authentication')->na
         
         Route::middleware('auth:sanctum')->group(
             function() {
-                Route::post('logout', 'logout')->name('logout');
                 Route::get('user', 'user')->name('user');
+                Route::put('update-details', 'updateDetails')->name('updateDetails');
+                Route::put('update-password', 'updatePassword')->name('updatePassword');
+                Route::post('logout', 'logout')->name('logout');
             }
         );
     }
 );
 
-Route::controller(RoleController::class)->prefix('roles')->name('roles.')->group(
+Route::controller(RoleController::class)->middleware('auth:sanctum', 'role:Administrator')->prefix('roles')->name('roles.')->group(
     function() {
         Route::get('', 'index')->name('index');
         Route::get('{role}', 'get')->name('get');
@@ -48,7 +50,7 @@ Route::controller(RegionController::class)->prefix('regions')->name('regions.')-
         Route::get('', 'index')->name('index');
         Route::get('{region}', 'get')->name('get');
 
-        Route::middleware('role:Administrator')->group(
+        Route::middleware('auth:sanctum', 'role:Administrator')->group(
             function() {
                 Route::post('', 'create')->name('create');
                 Route::put('{region}', 'update')->name('update');
@@ -63,7 +65,7 @@ Route::controller(ConstituencyController::class)->prefix('constituencies')->name
         Route::get('', 'index')->name('index');
         Route::get('{constituency}', 'get')->name('get');
 
-        Route::middleware('role:Administrator')->group(
+        Route::middleware('auth:sanctum', 'role:Administrator')->group(
             function() {
                 Route::post('', 'create')->name('create');
                 Route::put('{constituency}', 'update')->name('update');
@@ -78,7 +80,7 @@ Route::controller(PositionController::class)->prefix('positions')->name('positio
         Route::get('', 'index')->name('index');
         Route::get('{position}', 'get')->name('get');
 
-        Route::middleware('role:Administrator')->group(
+        Route::middleware('auth:sanctum', 'role:Administrator')->group(
             function() {
                 Route::post('', 'create')->name('create');
                 Route::put('{position}', 'update')->name('update');
@@ -93,7 +95,7 @@ Route::controller(PartyController::class)->prefix('parties')->name('parties.')->
         Route::get('', 'index')->name('index');
         Route::get('{party}', 'get')->name('get');
 
-        Route::middleware('role:Administrator')->group(
+        Route::middleware('auth:sanctum', 'role:Administrator')->group(
             function() {
                 Route::post('', 'create')->name('create');
                 Route::put('{party}', 'update')->name('update');
@@ -103,7 +105,7 @@ Route::controller(PartyController::class)->prefix('parties')->name('parties.')->
     }
 );
 
-Route::controller(AspirantController::class)->prefix('aspirants')->name('aspirants.')->group(
+Route::controller(AspirantController::class)->middleware('auth:sanctum')->prefix('aspirants')->name('aspirants.')->group(
     function() {
         Route::middleware('role:Administrator')->group(
             function() {
@@ -141,7 +143,7 @@ Route::controller(AspirantController::class)->prefix('aspirants')->name('aspiran
     }
 );
 
-Route::controller(PostController::class)->prefix('posts')->name('posts.')->group(
+Route::controller(PostController::class)->middleware('auth:sanctum')->prefix('posts')->name('posts.')->group(
     function() {
         Route::middleware('role:Administrator,Follower')->group(
             function() {

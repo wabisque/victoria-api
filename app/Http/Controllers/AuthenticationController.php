@@ -6,9 +6,12 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class AuthenticationController extends Controller
 {
@@ -57,7 +60,7 @@ class AuthenticationController extends Controller
             'email' => [
                 'required',
                 'email',
-                'distinct:users'
+                'unique:users'
             ],
             'phone_number' => [
                 'required',
@@ -65,7 +68,7 @@ class AuthenticationController extends Controller
                 'numeric',
                 'min:10',
                 'max:10',
-                'distinct:users'
+                'unique:users'
             ],
             'password' => [
                 'required',
@@ -94,10 +97,94 @@ class AuthenticationController extends Controller
     {
         $user = $request->user();
 
-        $user->load('roles');
+        $user->load('aspirant', 'roles');
 
         $user = new UserResource($request->user());
         
         return response()->json(compact($user));
+    }
+
+    public function updateDetails(Request $request)
+    {
+        $user = $request->user();
+        $fields = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'min:3'
+            ],
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users')->ignore($user)
+            ],
+            'phone_number' => [
+                'required',
+                'string',
+                'numeric',
+                'min:10',
+                'max:10',
+                Rule::unique('users')->ignore($user)
+            ],
+        ]);
+
+        try
+        {
+            DB::beginTransaction();
+
+            $user->update($fields);
+            $user->load('aspirant', 'roles');
+
+            $user = new UserResource($request->user());
+            
+            DB::commit();
+            
+            return response()->json(compact($user));
+        }
+        catch(Throwable $th)
+        {
+            DB::rollBack();
+
+            throw $th;
+        }
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $user = $request->user();
+        $fields = $request->validate([
+            'password' => [
+                'required',
+                'confirmed',
+                Password::defaults()
+            ],
+            'current_password' => [
+                'required',
+                'current_password'
+            ]
+        ]);
+        $fields['password'] = Hash::make($fields['password']);
+
+        unset($fields['current_password']);
+
+        try
+        {
+            DB::beginTransaction();
+
+            $user->update($fields);
+            $user->load('aspirant', 'roles');
+
+            $user = new UserResource($request->user());
+            
+            DB::commit();
+            
+            return response()->json(compact($user));
+        }
+        catch(Throwable $th)
+        {
+            DB::rollBack();
+
+            throw $th;
+        }
     }
 }
