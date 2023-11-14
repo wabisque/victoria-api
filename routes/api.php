@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\ConstituencyController;
 use App\Http\Controllers\PartyController;
 use App\Http\Controllers\PositionController;
+use App\Http\Controllers\PostController;
 use App\Http\Controllers\RegionController;
 use App\Http\Controllers\RoleController;
 use Illuminate\Http\Request;
@@ -130,5 +131,24 @@ Route::controller(AspirantController::class)->prefix('aspirants')->name('aspiran
 
         Route::get('', 'index')->name('index');
         Route::get('{aspirant}', 'get')->name('get');
+    }
+);
+
+Route::controller(PostController::class)->prefix('posts')->name('posts.')->group(
+    function() {
+        Route::middleware('role:Administrator,Follower')->group(
+            function() {
+                Route::get('', 'index')->name('index');
+                Route::get('{post}', 'get')->name('get');
+            }
+        );
+
+        Route::middleware('role:Administrator')->group(
+            function() {
+                Route::post('', 'create')->name('create');
+                Route::put('{post}', 'update')->name('update');
+                Route::delete('{post}', 'delete')->name('delete');
+            }
+        );
     }
 );
