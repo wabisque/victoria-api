@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\Request;
@@ -52,7 +53,7 @@ class AuthenticationController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response();
+        return response('{}');
     }
 
     public function register(Request $request)
@@ -85,7 +86,8 @@ class AuthenticationController extends Controller
             'name' => $fields['name'],
             'email' => $fields['email'],
             'phone_number' => $fields['phone_number'],
-            'password' => Hash::make($fields['password'])
+            'password' => Hash::make($fields['password']),
+            'role_id' => Role::where('name', 'Follower')->first()->id
         ]);
         
         $user->refresh();

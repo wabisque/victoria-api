@@ -46,7 +46,7 @@ class PartyController extends Controller
 
     public function index(Request $request)
     {
-        $parties = PartyResource::collection(Party::all());
+        $parties = PartyResource::collection(Party::latest()->get());
 
         return response()->json(compact('parties'));
     }

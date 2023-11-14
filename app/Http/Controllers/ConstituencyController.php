@@ -47,7 +47,7 @@ class ConstituencyController extends Controller
 
     public function index(Request $request)
     {
-        $constituencies = ConstituencyResource::collection(Constituency::with('region')->get());
+        $constituencies = ConstituencyResource::collection(Constituency::with('region')->latest()->get());
 
         return response()->json(compact('constituencies'));
     }

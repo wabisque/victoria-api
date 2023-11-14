@@ -46,7 +46,7 @@ class PositionController extends Controller
 
     public function index(Request $request)
     {
-        $positions = PositionResource::collection(Position::all());
+        $positions = PositionResource::collection(Position::latest()->get());
 
         return response()->json(compact('positions'));
     }

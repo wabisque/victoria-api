@@ -46,7 +46,7 @@ class RegionController extends Controller
 
     public function index(Request $request)
     {
-        $regions = RegionResource::collection(Region::with('constituencies')->get());
+        $regions = RegionResource::collection(Region::with('constituencies')->latest()->get());
 
         return response()->json(compact('regions'));
     }

@@ -16,7 +16,7 @@ class UserResource extends JsonResource
             'phone_number' => $this->phone_number,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'roles' => RoleResource::collection($this->whenLoaded('roles')),
+            'role' => new RoleResource($this->whenLoaded('role')),
             'aspirant' => new AspirantResource($this->whenLoaded('aspirant'))
         ];
     }

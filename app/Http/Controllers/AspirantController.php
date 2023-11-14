@@ -98,7 +98,7 @@ class AspirantController extends Controller
                 'party',
                 'position',
                 'user'
-            ])->get();
+            ])->latest()->get();
         }
         else
         {
@@ -109,7 +109,7 @@ class AspirantController extends Controller
                 'party',
                 'position',
                 'user'
-            ])->get();
+            ])->latest()->get();
         }
 
         $aspirants = AspirantResource::collection($aspirants);
@@ -125,7 +125,7 @@ class AspirantController extends Controller
             'party',
             'position',
             'user'
-        ])->get());
+        ])->latest()->get());
 
         return response()->json(compact('aspirant_creation_requests'));
     }
@@ -140,7 +140,7 @@ class AspirantController extends Controller
             ],
             'party',
             'position'
-        ])->get());
+        ])->latest()->get());
 
         return response()->json(compact('aspirant_update_requests'));
     }

@@ -56,11 +56,11 @@ class PostController extends Controller
     {
         if($request->user()->role()->where('name', 'Aspirant')->exists())
         {
-            $posts = $request->user()->aspirant->posts()->with('aspirant')->get();
+            $posts = $request->user()->aspirant->posts()->with('aspirant')->latest()->get();
         }
         else
         {
-            $posts = Post::whereIn('aspirant_id', $request->user()->followedAspirants->each(fn($model) => $model->id))->get();
+            $posts = Post::whereIn('aspirant_id', $request->user()->followedAspirants->each(fn($model) => $model->id))->latest()->get();
         }
 
         $posts = PostResource::collection($posts);
