@@ -17,16 +17,22 @@ class AuthenticationController extends Controller
 {
     public function login(Request $request)
     {
-        $fields = $request->validate([
-            'id' => [
-                'required',
-                'string'
+        $fields = $request->validate(
+            [
+                'id' => [
+                    'required',
+                    'string'
+                ],
+                'password' => [
+                    'required',
+                    'string'
+                ]
             ],
-            'password' => [
-                'required',
-                'string'
+            [],
+            [
+                'id' => 'email_or_phone_number'
             ]
-        ]);
+        );
 
         $user = User::where('email', $fields['id'])->orWhere('phone_number', $fields['id'])->with('aspirant', 'role')->first();
 
@@ -34,7 +40,7 @@ class AuthenticationController extends Controller
             $token = $user->createToken('api')->plainTextToken;
             $user = new UserResource($user);
 
-            return response()->json(compact($user, $token));
+            return response()->json(compact('user', 'token'));
         }
 
         throw ValidationException::withMessages([
@@ -90,7 +96,7 @@ class AuthenticationController extends Controller
         $token = $user->createToken('api')->plainTextToken;
         $user = new UserResource($user);
 
-        return response()->json(compact($user, $token));
+        return response()->json(compact('user', 'token'));
     }
 
     public function user(Request $request)
@@ -101,7 +107,7 @@ class AuthenticationController extends Controller
 
         $user = new UserResource($request->user());
         
-        return response()->json(compact($user));
+        return response()->json(compact('user'));
     }
 
     public function updateDetails(Request $request)
@@ -139,7 +145,7 @@ class AuthenticationController extends Controller
             
             DB::commit();
             
-            return response()->json(compact($user));
+            return response()->json(compact('user'));
         }
         catch(Throwable $th)
         {
@@ -178,7 +184,7 @@ class AuthenticationController extends Controller
             
             DB::commit();
             
-            return response()->json(compact($user));
+            return response()->json(compact('user'));
         }
         catch(Throwable $th)
         {

@@ -14,13 +14,13 @@ class RoleController extends Controller
     {
         $roles = RoleResource::collection(Role::all());
 
-        return response()->json(compact($roles));
+        return response()->json(compact('roles'));
     }
 
     public function get(Request $request, Role $role)
     {
         $role = new RoleResource($role);
 
-        return response()->json(compact($role));
+        return response()->json(compact('role'));
     }
 }

@@ -35,7 +35,7 @@ class ConstituencyController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($constituency));
+            return response()->json(compact('constituency'));
         }
         catch(Throwable $th)
         {
@@ -49,7 +49,7 @@ class ConstituencyController extends Controller
     {
         $constituencies = ConstituencyResource::collection(Constituency::with('region')->get());
 
-        return response()->json(compact($constituencies));
+        return response()->json(compact('constituencies'));
     }
 
     public function get(Request $request, Constituency $constituency)
@@ -58,7 +58,7 @@ class ConstituencyController extends Controller
 
         $constituency = new ConstituencyResource($constituency);
 
-        return response()->json(compact($constituency));
+        return response()->json(compact('constituency'));
     }
 
     public function update(Request $request, Constituency $constituency)
@@ -82,7 +82,7 @@ class ConstituencyController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($constituency));
+            return response()->json(compact('constituency'));
         }
         catch(Throwable $th)
         {
@@ -110,7 +110,7 @@ class ConstituencyController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($constituency));
+            return response()->json(compact('constituency'));
         }
         catch(Throwable $th)
         {

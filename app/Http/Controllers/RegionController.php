@@ -34,7 +34,7 @@ class RegionController extends Controller
     
             DB::commit();
     
-            return response()->json(compact($region));
+            return response()->json(compact('region'));
         }
         catch(Throwable $th)
         {
@@ -48,7 +48,7 @@ class RegionController extends Controller
     {
         $regions = RegionResource::collection(Region::with('constituencies')->get());
 
-        return response()->json(compact($regions));
+        return response()->json(compact('regions'));
     }
 
     public function get(Request $request, Region $region)
@@ -57,7 +57,7 @@ class RegionController extends Controller
         
         $region = new RegionResource($region);
 
-        return response()->json(compact($region));
+        return response()->json(compact('region'));
     }
 
     public function update(Request $request, Region $region)
@@ -81,7 +81,7 @@ class RegionController extends Controller
     
             DB::commit();
     
-            return response()->json(compact($region));
+            return response()->json(compact('region'));
         }
         catch(Throwable $th)
         {
@@ -105,7 +105,7 @@ class RegionController extends Controller
     
             DB::commit();
     
-            return response()->json(compact($region));
+            return response()->json(compact('region'));
         }
         catch(Throwable $th)
         {

@@ -34,7 +34,7 @@ class PartyController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($party));
+            return response()->json(compact('party'));
         }
         catch(Throwable $th)
         {
@@ -48,14 +48,14 @@ class PartyController extends Controller
     {
         $parties = PartyResource::collection(Party::all());
 
-        return response()->json(compact($parties));
+        return response()->json(compact('parties'));
     }
 
     public function get(Request $request, Party $party)
     {
         $party = new PartyResource($party);
 
-        return response()->json(compact($party));
+        return response()->json(compact('party'));
     }
 
     public function update(Request $request, Party $party)
@@ -78,7 +78,7 @@ class PartyController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($party));
+            return response()->json(compact('party'));
         }
         catch(Throwable $th)
         {
@@ -105,7 +105,7 @@ class PartyController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($party));
+            return response()->json(compact('party'));
         }
         catch(Throwable $th)
         {

@@ -77,7 +77,7 @@ class AspirantController extends Controller
 
             DB::commit();
     
-            return response()->json(compact($aspirant_creation_request));
+            return response()->json(compact('aspirant_creation_request'));
         }
         catch(Throwable $th)
         {
@@ -114,7 +114,7 @@ class AspirantController extends Controller
 
         $aspirants = AspirantResource::collection($aspirants);
 
-        return response()->json(compact($aspirants));
+        return response()->json(compact('aspirants'));
     }
 
     public function indexCreationRequest(Request $request) {
@@ -127,7 +127,7 @@ class AspirantController extends Controller
             'user'
         ])->get());
 
-        return response()->json(compact($aspirant_creation_requests));
+        return response()->json(compact('aspirant_creation_requests'));
     }
 
     public function indexUpdateRequest(Request $request) {
@@ -142,7 +142,7 @@ class AspirantController extends Controller
             'position'
         ])->get());
 
-        return response()->json(compact($aspirant_update_requests));
+        return response()->json(compact('aspirant_update_requests'));
     }
 
     public function get(Request $request, Aspirant $aspirant)
@@ -163,7 +163,7 @@ class AspirantController extends Controller
 
         $aspirant = new AspirantResource($aspirant);
 
-        return response()->json(compact($aspirant));
+        return response()->json(compact('aspirant'));
     }
 
     public function getCreationRequest(Request $request, AspirantCreationRequest $aspirant_creation_request)
@@ -179,7 +179,7 @@ class AspirantController extends Controller
 
         $aspirant_creation_request = new AspirantCreationRequestResource($aspirant_creation_request);
 
-        return response()->json(compact($aspirant_creation_request));
+        return response()->json(compact('aspirant_creation_request'));
     }
 
     public function getUpdateRequest(Request $request, AspirantUpdateRequest $aspirant_update_request)
@@ -197,7 +197,7 @@ class AspirantController extends Controller
 
         $aspirant_update_request = new AspirantUpdateRequestResource($aspirant_update_request);
 
-        return response()->json(compact($aspirant_update_request));
+        return response()->json(compact('aspirant_update_request'));
     }
 
     public function update(Request $request)
@@ -274,7 +274,7 @@ class AspirantController extends Controller
 
             DB::commit();
     
-            return response()->json(compact($aspirant_update_request));
+            return response()->json(compact('aspirant_update_request'));
         }
         catch(Throwable $th)
         {
@@ -309,7 +309,7 @@ class AspirantController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($aspirant));
+            return response()->json(compact('aspirant'));
         }
         catch(Throwable $th)
         {
@@ -382,7 +382,7 @@ class AspirantController extends Controller
             
             DB::commit();
 
-            return response()->json(compact($aspirant, $aspirant_creation_request));
+            return response()->json(compact('aspirant', 'aspirant_creation_request'));
         }
         catch(Throwable $th)
         {
@@ -452,7 +452,7 @@ class AspirantController extends Controller
             
             DB::commit();
 
-            return response()->json(compact($aspirant, $aspirant_update_request));
+            return response()->json(compact('aspirant', 'aspirant_update_request'));
         }
         catch(Throwable $th)
         {
@@ -482,7 +482,7 @@ class AspirantController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($aspirant));
+            return response()->json(compact('aspirant'));
         }
         catch(Throwable $th)
         {
@@ -512,7 +512,7 @@ class AspirantController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($aspirant));
+            return response()->json(compact('aspirant'));
         }
         catch(Throwable $th)
         {

@@ -34,7 +34,7 @@ class PositionController extends Controller
     
             DB::commit();
     
-            return response()->json(compact($position));
+            return response()->json(compact('position'));
         }
         catch(Throwable $th)
         {
@@ -48,14 +48,14 @@ class PositionController extends Controller
     {
         $positions = PositionResource::collection(Position::all());
 
-        return response()->json(compact($positions));
+        return response()->json(compact('positions'));
     }
 
     public function get(Request $request, Position $position)
     {
         $position = new PositionResource($position);
 
-        return response()->json(compact($position));
+        return response()->json(compact('position'));
     }
 
     public function update(Request $request, Position $position)
@@ -78,7 +78,7 @@ class PositionController extends Controller
     
             DB::commit();
     
-            return response()->json(compact($position));
+            return response()->json(compact('position'));
         }
         catch(Throwable $th)
         {
@@ -105,7 +105,7 @@ class PositionController extends Controller
     
             DB::commit();
     
-            return response()->json(compact($position));
+            return response()->json(compact('position'));
         }
         catch(Throwable $th)
         {

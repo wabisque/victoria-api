@@ -42,7 +42,7 @@ class PostController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($post));
+            return response()->json(compact('post'));
         }
         catch(Throwable $th)
         {
@@ -65,7 +65,7 @@ class PostController extends Controller
 
         $posts = PostResource::collection($posts);
 
-        return response()->json(compact($posts));
+        return response()->json(compact('posts'));
     }
 
     public function get(Request $request, Post $post)
@@ -84,7 +84,7 @@ class PostController extends Controller
 
         $post = new PostResource($post);
 
-        return response()->json(compact($post));
+        return response()->json(compact('post'));
     }
 
     public function update(Request $request, Post $post)
@@ -111,7 +111,7 @@ class PostController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($post));
+            return response()->json(compact('post'));
         }
         catch(Throwable $th)
         {
@@ -134,7 +134,7 @@ class PostController extends Controller
 
             DB::commit();
 
-            return response()->json(compact($post));
+            return response()->json(compact('post'));
         }
         catch(Throwable $th)
         {
