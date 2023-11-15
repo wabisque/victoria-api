@@ -13,4 +13,14 @@ class Party extends Model
     {
         return $this->hasMany(Aspirant::class);
     }
+
+    public function aspirantCreationRequests()
+    {
+        return $this->hasMany(AspirantCreationRequest::class);
+    }
+
+    public function aspirantUpdateRequests()
+    {
+        return $this->hasMany(AspirantUpdateRequest::class);
+    }
 }

@@ -7,6 +7,7 @@ use App\Models\Region;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 use Throwable;
 
 class RegionController extends Controller
@@ -93,6 +94,11 @@ class RegionController extends Controller
 
     public function delete(Request $request, Region $region)
     {
+        if($region->constituencies()->exists())
+        {
+            throw new NotFoundResourceException();
+        }
+
         try
         {
             DB::beginTransaction();

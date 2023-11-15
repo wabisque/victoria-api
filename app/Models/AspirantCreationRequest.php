@@ -15,7 +15,7 @@ class AspirantCreationRequest extends Model
 
     public function constituency()
     {
-        return $this->belonsTo(Constituency::class);
+        return $this->belongsTo(Constituency::class);
     }
 
     public function party()

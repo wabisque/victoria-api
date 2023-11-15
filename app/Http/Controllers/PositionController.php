@@ -90,7 +90,7 @@ class PositionController extends Controller
 
     public function delete(Request $request, Position $position)
     {
-        if($position->aspirants()->exists())
+        if(Position::where('id', $position->id)->where(fn($q) => $q->has('aspirants')->orWhereHas('aspirantCreationRequests', fn($q) => $q->whereNull('status'))->orWhereHas('aspirantUpdateRequests', fn($q) => $q->whereNull('status')))->exists())
         {
             throw new NotFoundResourceException();
         }

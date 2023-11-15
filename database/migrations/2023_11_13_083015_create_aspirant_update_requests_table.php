@@ -18,8 +18,8 @@ return new class extends Migration
                     'Accepted',
                     'Declined'
                 ]
-            );
-            $table->timestamp('status_applied_at');
+            )->nullable();
+            $table->timestamp('status_applied_at')->nullable();
             $table->unsignedBigInteger('aspirant_id');
             $table->unsignedBigInteger('constituency_id');
             $table->unsignedBigInteger('party_id');

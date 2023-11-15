@@ -90,7 +90,7 @@ class PartyController extends Controller
 
     public function delete(Request $request, Party $party)
     {
-        if($party->aspirants()->exists())
+        if(Party::where('id', $party->id)->where(fn($q) => $q->has('aspirants')->orWhereHas('aspirantCreationRequests', fn($q) => $q->whereNull('status'))->orWhereHas('aspirantUpdateRequests', fn($q) => $q->whereNull('status')))->exists())
         {
             throw new NotFoundResourceException();
         }

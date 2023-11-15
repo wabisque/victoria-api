@@ -113,6 +113,7 @@ Route::controller(AspirantController::class)->middleware('auth:sanctum')->prefix
                     function() {
                         Route::get('', 'indexCreationRequest')->name('indexCreationRequest');
                         Route::get('{aspirant_creation_request}', 'getCreationRequest')->name('getCreationRequest');
+                        Route::put('{aspirant_creation_request}', 'confirmCreation')->name('confirmCreation');
                     }
                 );
 
@@ -120,6 +121,7 @@ Route::controller(AspirantController::class)->middleware('auth:sanctum')->prefix
                     function() {
                         Route::get('', 'indexUpdateRequest')->name('indexUpdateRequest');
                         Route::get('{aspirant_update_request}', 'getUpdateRequest')->name('getUpdateRequest');
+                        Route::put('{aspirant_update_request}', 'confirmUpdate')->name('confirmUpdate');
                     }
                 );
 

@@ -19,8 +19,16 @@ class ConstituencyController extends Controller
                 'required',
                 'string',
                 'unique:constituencies'
-            ]
+            ],
+            'region' => [
+                'required',
+                'integer',
+                'exists:regions,id'
+            ],
         ]);
+        $fields['region_id'] = $fields['region'];
+
+        unset($fields['region']);
 
         try
         {
@@ -94,7 +102,7 @@ class ConstituencyController extends Controller
 
     public function delete(Request $request, Constituency $constituency)
     {
-        if($constituency->aspirants()->exists())
+        if(Constituency::where('id', $constituency->id)->where(fn($q) => $q->has('aspirants')->orWhereHas('aspirantCreationRequests', fn($q) => $q->whereNull('status'))->orWhereHas('aspirantUpdateRequests', fn($q) => $q->whereNull('status')))->exists())
         {
             throw new NotFoundResourceException();
         }
