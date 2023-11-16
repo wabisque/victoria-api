@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Translation\Exception\NotFoundResourceException;
 
 class HasAnyRoles
 {
@@ -19,5 +20,7 @@ class HasAnyRoles
         {
             return $next($request);
         }
+
+        throw new NotFoundResourceException();
     }
 }

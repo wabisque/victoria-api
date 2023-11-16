@@ -13,9 +13,14 @@ class AspirantResource extends JsonResource
         return [
             'id' => $this->id,
             'address' => $this->address,
-            'flyer' => Storage::url($this->flyer),
+            'flyer' => asset(Storage::url($this->flyer)),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'is_followed' => $this->followers()->where(
+                'users.id',
+                $request->user()?->id
+            )->exists(),
+            'aspirant_update_request' => AspirantUpdateRequestResource::collection($this->whenLoaded('aspirantUpdateRequests')),
             'constituency' => new ConstituencyResource($this->whenLoaded('constituency')),
             'party' => new PartyResource($this->whenLoaded('party')),
             'position' => new PositionResource($this->whenLoaded('position')),

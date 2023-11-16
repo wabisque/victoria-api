@@ -16,8 +16,13 @@ class UserResource extends JsonResource
             'phone_number' => $this->phone_number,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'role' => new RoleResource($this->whenLoaded('role')),
-            'aspirant' => new AspirantResource($this->whenLoaded('aspirant'))
+            'has_aspirant_creation_request' => $this->aspirantCreationRequests()->whereNull('status')->exists(),
+            'has_aspirant_update_request' => $this->aspirant()->whereHas(
+                'aspirantUpdateRequests',
+                fn($q) => $q->whereNull('status')
+            )->exists(),
+            'aspirant' => new AspirantResource($this->whenLoaded('aspirant')),
+            'role' => new RoleResource($this->whenLoaded('role'))
         ];
     }
 }

@@ -12,6 +12,7 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\Translation\Exception\NotFoundResourceException;
 use Throwable;
 
@@ -19,6 +20,11 @@ class AspirantController extends Controller
 {
     public function create(Request $request)
     {
+        if($request->user()->aspirantCreationRequests()->whereNull('status')->exists())
+        {
+            throw new BadRequestHttpException();
+        }
+
         $fields = $request->validate([
             'address' => [
                 'required',
@@ -59,8 +65,8 @@ class AspirantController extends Controller
                 'user_id' => $request->user()->id
             ]);
     
-            Storage::put(
-                'aspirants/flyers/' . $fields['flyer']->hashName(),
+            Storage::disk('public')->put(
+                'aspirants/flyers',
                 $fields['flyer']
             );
             $aspirant_creation_request->refresh();
@@ -89,7 +95,9 @@ class AspirantController extends Controller
 
     public function index(Request $request)
     {
-        if($request->user()->role()->where('name', 'Administrator')->exists())
+        $user = $request->user();
+        
+        if($user->role()->where('name', 'Administrator')->exists())
         {
             $aspirants = Aspirant::with([
                 'constituency' => [
@@ -102,14 +110,33 @@ class AspirantController extends Controller
         }
         else
         {
-            $aspirants = $request->user()->followedAspirants()->with([
+            $aspirants = $user->followedAspirants()->with([
                 'constituency' => [
                     'region'
                 ],
                 'party',
                 'position',
                 'user'
-            ])->latest()->get();
+            ])->latest()->get()->concat(
+                Aspirant::with([
+                    'constituency' => [
+                        'region'
+                    ],
+                    'party',
+                    'position',
+                    'user'
+                ])->whereDoesntHave(
+                    'followers',
+                    fn($q) => $q->where(
+                        'users.id',
+                        $user->id
+                    )
+                )->where(
+                    'user_id',
+                    '<>',
+                    $user->id
+                )->latest()->get()
+            );
         }
 
         $aspirants = AspirantResource::collection($aspirants);
@@ -133,6 +160,11 @@ class AspirantController extends Controller
     public function indexUpdateRequest(Request $request) {
         $aspirant_update_requests = AspirantUpdateRequestResource::collection(AspirantUpdateRequest::with([
             'aspirant' => [
+                'constituency' => [
+                    'region'
+                ],
+                'party',
+                'position',
                 'user'
             ],
             'constituency' => [
@@ -186,6 +218,11 @@ class AspirantController extends Controller
     {
         $aspirant_update_request->load([
             'aspirant' => [
+                'constituency' => [
+                    'region'
+                ],
+                'party',
+                'position',
                 'user'
             ],
             'constituency' => [
@@ -202,6 +239,11 @@ class AspirantController extends Controller
 
     public function update(Request $request)
     {
+        if($request->user()->aspirant->aspirantUpdateRequests()->whereNull('status')->exists())
+        {
+            throw new BadRequestHttpException();
+        }
+
         $fields = $request->validate([
             'address' => [
                 'required',
@@ -228,18 +270,12 @@ class AspirantController extends Controller
                 'exists:positions,id'
             ]
         ]);
+        $fields['flyer'] ??= null;
         $aspirant = $request->user()->aspirant;
 
         try
         {
             DB::beginTransaction();
-
-            Storage::delete(
-                $aspirant->aspirantUpdateRequests()->whereNull('status')->update([
-                    'status' => 'Declined',
-                    'status_applied_at' => now()
-                ])->map(fn($model) => $model->flyer)->toArry()
-            );
     
             $aspirant_update_request = AspirantUpdateRequest::create([
                 'address' => $fields['address'],
@@ -252,8 +288,8 @@ class AspirantController extends Controller
     
             if($fields['flyer'] != null)
             {
-                Storage::put(
-                    'aspirants/flyers/' . $fields['flyer']->hashName(),
+                Storage::disk('public')->put(
+                    'aspirants/flyers',
                     $fields['flyer']
                 );
             }
@@ -303,7 +339,7 @@ class AspirantController extends Controller
                 'role_id' => Role::where('name', 'Follower')->first()->id
             ]);
             $aspirant->delete();
-            Storage::delete($aspirant->flyer);
+            Storage::disk('public')->delete($aspirant->flyer);
 
             $aspirant = new AspirantResource($aspirant);
 
@@ -375,8 +411,10 @@ class AspirantController extends Controller
             }
             else
             {
-                Storage::delete($aspirant_creation_request->flyer);
+                Storage::disk('public')->delete($aspirant_creation_request->flyer);
             }
+
+            $aspirant_creation_request->delete();
 
             $aspirant_creation_request = new AspirantUpdateRequestResource($aspirant_creation_request);
             
@@ -410,6 +448,11 @@ class AspirantController extends Controller
             $aspirant_update_request->update($fields);
             $aspirant_update_request->load([
                 'aspirant' => [
+                    'constituency' => [
+                        'region'
+                    ],
+                    'party',
+                    'position',
                     'user'
                 ],
                 'constituency' => [
@@ -423,15 +466,15 @@ class AspirantController extends Controller
 
             if($aspirant_update_request->status == 'Accepted')
             {
-                $aspirant = $aspirant_update_request->aspirant->update([
+                $aspirant = $aspirant_update_request->aspirant;
+
+                $aspirant->update([
                     'address' => $aspirant_update_request->address,
                     'flyer' => $aspirant_update_request->flyer,
                     'constituency_id' => $aspirant_update_request->constituency_id,
                     'party_id' => $aspirant_update_request->party_id,
                     'position_id' => $aspirant_update_request->position_id,
                 ]);
-
-                $aspirant->refresh();
                 $aspirant->load([
                     'constituency' => [
                         'region'
@@ -445,8 +488,10 @@ class AspirantController extends Controller
             }
             else
             {
-                Storage::delete($aspirant_update_request->flyer);
+                Storage::disk('public')->delete($aspirant_update_request->flyer);
             }
+
+            $aspirant_update_request->delete();
 
             $aspirant_update_request = new AspirantUpdateRequestResource($aspirant_update_request);
             
@@ -468,7 +513,7 @@ class AspirantController extends Controller
         {
             DB::beginTransaction();
 
-            $request->user->followedAspirants()->attach($aspirant->id);
+            $request->user()->followedAspirants()->attach($aspirant->id);
             $aspirant->load([
                 'constituency' => [
                     'region'
@@ -498,7 +543,7 @@ class AspirantController extends Controller
         {
             DB::beginTransaction();
 
-            $request->user->followedAspirants()->detach($aspirant->id);
+            $request->user()->followedAspirants()->detach($aspirant->id);
             $aspirant->load([
                 'constituency' => [
                     'region'

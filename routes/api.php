@@ -136,7 +136,7 @@ Route::controller(AspirantController::class)->middleware('auth:sanctum')->prefix
             }
         );
 
-        Route::put('{aspirant}', 'update')->middleware('role:Aspirant')->name('update');
+        Route::put('', 'update')->middleware('role:Aspirant')->name('update');
         
         Route::post('', 'create')->middleware('role:Follower')->name('create');
 
@@ -147,19 +147,15 @@ Route::controller(AspirantController::class)->middleware('auth:sanctum')->prefix
 
 Route::controller(PostController::class)->middleware('auth:sanctum')->prefix('posts')->name('posts.')->group(
     function() {
-        Route::middleware('role:Administrator,Follower')->group(
-            function() {
-                Route::get('', 'index')->name('index');
-                Route::get('{post}', 'get')->name('get');
-            }
-        );
-
-        Route::middleware('role:Administrator')->group(
+        Route::middleware('role:Aspirant')->group(
             function() {
                 Route::post('', 'create')->name('create');
                 Route::put('{post}', 'update')->name('update');
                 Route::delete('{post}', 'delete')->name('delete');
             }
         );
+
+        Route::get('', 'index')->name('index');
+        Route::get('{post}', 'get')->name('get');
     }
 );

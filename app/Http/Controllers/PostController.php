@@ -34,6 +34,11 @@ class PostController extends Controller
             $post->refresh();
             $post->load([
                 'aspirant' => [
+                    'constituency' => [
+                        'region'
+                    ],
+                    'party',
+                    'position',
                     'user'
                 ]
             ]);
@@ -56,11 +61,45 @@ class PostController extends Controller
     {
         if($request->user()->role()->where('name', 'Aspirant')->exists())
         {
-            $posts = $request->user()->aspirant->posts()->with('aspirant')->latest()->get();
+            $posts = $request->user()->aspirant->posts()->with([
+                'aspirant' => [
+                    'constituency' => [
+                        'region'
+                    ],
+                    'party',
+                    'position',
+                    'user'
+                ]
+            ])->latest()->get();
+        }
+        else if($request->user()->role()->where('name', 'Follower')->exists())
+        {
+            $posts = Post::with([
+                'aspirant' => [
+                    'constituency' => [
+                        'region'
+                    ],
+                    'party',
+                    'position',
+                    'user'
+                ]
+            ])->whereIn(
+                'aspirant_id',
+                $request->user()->followedAspirants->map(fn($model) => $model->id)
+            )->latest()->get();
         }
         else
         {
-            $posts = Post::whereIn('aspirant_id', $request->user()->followedAspirants->each(fn($model) => $model->id))->latest()->get();
+            $posts = Post::with([
+                'aspirant' => [
+                    'constituency' => [
+                        'region'
+                    ],
+                    'party',
+                    'position',
+                    'user'
+                ]
+            ])->get();
         }
 
         $posts = PostResource::collection($posts);
@@ -80,7 +119,16 @@ class PostController extends Controller
             throw new NotFoundResourceException();
         }
 
-        $post->load('aspirant');
+        $post->load([
+            'aspirant' => [
+                'constituency' => [
+                    'region'
+                ],
+                'party',
+                'position',
+                'user'
+            ]
+        ]);
 
         $post = new PostResource($post);
 
@@ -105,7 +153,16 @@ class PostController extends Controller
             DB::beginTransaction();
 
             $post->update($fields);
-            $post->load('aspirant');
+            $post->load([
+                'aspirant' => [
+                    'constituency' => [
+                        'region'
+                    ],
+                    'party',
+                    'position',
+                    'user'
+                ]
+            ]);
 
             $post = new PostResource($post);
 
@@ -127,7 +184,16 @@ class PostController extends Controller
         {
             DB::beginTransaction();
 
-            $post->load('aspirant');
+            $post->load([
+                'aspirant' => [
+                    'constituency' => [
+                        'region'
+                    ],
+                    'party',
+                    'position',
+                    'user'
+                ]
+            ]);
             $post->delete();
 
             $post = new PostResource($post);

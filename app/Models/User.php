@@ -21,6 +21,11 @@ class User extends Authenticatable
         return $this->hasOne(Aspirant::class);
     }
 
+    public function aspirantCreationRequests()
+    {
+        return $this->hasMany(AspirantCreationRequest::class);
+    }
+
     public function boss()
     {
         return $this->belongsTo(User::class, 'boss_id');

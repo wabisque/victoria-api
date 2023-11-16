@@ -13,7 +13,7 @@ class AspirantCreationRequestResource extends JsonResource
         return [
             'id' => $this->id,
             'address' => $this->address,
-            'flyer' => Storage::url($this->flyer),
+            'flyer' => asset(Storage::url($this->flyer)),
             'status' => $this->status,
             'status_applied_at' => $this->status_applied_at,
             'created_at' => $this->created_at,

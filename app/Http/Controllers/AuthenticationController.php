@@ -35,7 +35,16 @@ class AuthenticationController extends Controller
             ]
         );
 
-        $user = User::where('email', $fields['id'])->orWhere('phone_number', $fields['id'])->with('aspirant', 'role')->first();
+        $user = User::where('email', $fields['id'])->orWhere('phone_number', $fields['id'])->with([
+            'aspirant' => [
+                'constituency' => [
+                    'region'
+                ],
+                'party',
+                'position'
+            ],
+            'role'
+        ])->first();
 
         if($user != null && Hash::check($fields['password'], $user->password)) {
             $token = $user->createToken('api')->plainTextToken;
@@ -91,7 +100,16 @@ class AuthenticationController extends Controller
         ]);
         
         $user->refresh();
-        $user->load('aspirant', 'role');
+        $user->load([
+            'aspirant' => [
+                'constituency' => [
+                    'region'
+                ],
+                'party',
+                'position'
+            ],
+            'role'
+    ]);
 
         $token = $user->createToken('api')->plainTextToken;
         $user = new UserResource($user);
@@ -103,7 +121,16 @@ class AuthenticationController extends Controller
     {
         $user = $request->user();
 
-        $user->load('aspirant', 'role');
+        $user->load([
+            'aspirant' => [
+                'constituency' => [
+                    'region'
+                ],
+                'party',
+                'position'
+            ],
+            'role'
+    ]);
 
         $user = new UserResource($request->user());
         
@@ -137,7 +164,16 @@ class AuthenticationController extends Controller
             DB::beginTransaction();
 
             $user->update($fields);
-            $user->load('aspirant', 'role');
+            $user->load([
+                'aspirant' => [
+                    'constituency' => [
+                        'region'
+                    ],
+                    'party',
+                    'position'
+                ],
+                'role'
+        ]);
 
             $user = new UserResource($request->user());
             
@@ -176,7 +212,16 @@ class AuthenticationController extends Controller
             DB::beginTransaction();
 
             $user->update($fields);
-            $user->load('aspirant', 'role');
+            $user->load([
+                'aspirant' => [
+                    'constituency' => [
+                        'region'
+                    ],
+                    'party',
+                    'position'
+                ],
+                'role'
+        ]);
 
             $user = new UserResource($request->user());
             
